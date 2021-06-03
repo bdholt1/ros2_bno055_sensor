@@ -51,11 +51,22 @@ BNO055Sensor::BNO055Sensor(rclcpp::NodeOptions const & options)
   // set operation mode as NDOF
   comres += bno055_set_operation_mode(BNO055_OPERATION_MODE_NDOF);
 
+  u8 mag_calib_status;
+  u8 accel_calib_status;
+  u8 gyro_calib_status;
+  u8 sys_calib_status;
+
+  // get the status variables
+  // TODO: publish a diagnostic message with the contents
+  comres += bno055_get_mag_calib_stat(&mag_calib_status);
+  comres += bno055_get_accel_calib_stat(&accel_calib_status);
+  comres += bno055_get_gyro_calib_stat(&gyro_calib_status);
+  comres += bno055_get_sys_calib_stat(&sys_calib_status);
+
   if (comres != 0)
   {
     RCLCPP_WARN(this->get_logger(), "Error setting up BNO055 sensor");
   }
-  
 }
   
 BNO055Sensor::~BNO055Sensor()
@@ -70,11 +81,6 @@ void BNO055Sensor::timer_callback()
 {
   s32 comres = BNO055_SUCCESS;
   
-  u8 mag_calib_status;
-  u8 accel_calib_status;
-  u8 gyro_calib_status;
-  u8 sys_calib_status;
-
   bno055_gyro_t gyro_xyz;
   bno055_linear_accel_t linear_accel_xyz;
 
@@ -85,12 +91,6 @@ void BNO055Sensor::timer_callback()
   bno055_gravity_double_t d_gravity_xyz;
   bno055_mag_double_t d_mag_xyz;
   double d_temp;
-
-  // get the status variables
-  comres += bno055_get_mag_calib_stat(&mag_calib_status);
-  comres += bno055_get_accel_calib_stat(&accel_calib_status);
-  comres += bno055_get_gyro_calib_stat(&gyro_calib_status);
-  comres += bno055_get_sys_calib_stat(&sys_calib_status);
 
   // read the raw data
   comres += bno055_read_gyro_xyz(&gyro_xyz);
