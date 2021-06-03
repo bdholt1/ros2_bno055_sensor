@@ -23,7 +23,7 @@
 #include <string>
 
 #include <rclcpp/rclcpp.hpp>
-#include "std_msgs/msg/string.hpp"
+#include "geometry_msgs/msg/vector3_stamped.hpp"
 #include "sensor_msgs/msg/imu.hpp"
 #include "sensor_msgs/msg/magnetic_field.hpp"
 #include "sensor_msgs/msg/temperature.hpp"
@@ -45,6 +45,7 @@ private:
   rclcpp::TimerBase::SharedPtr timer_;
   rclcpp::Publisher<sensor_msgs::msg::Imu>::SharedPtr imu_raw_publisher_;
   rclcpp::Publisher<sensor_msgs::msg::Imu>::SharedPtr imu_data_publisher_;
+  rclcpp::Publisher<geometry_msgs::msg::Vector3Stamped>::SharedPtr gravity_publisher_;
   rclcpp::Publisher<sensor_msgs::msg::MagneticField>::SharedPtr mag_publisher_;
   rclcpp::Publisher<sensor_msgs::msg::Temperature>::SharedPtr temp_publisher_;
   size_t count_;  

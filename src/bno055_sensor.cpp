@@ -28,10 +28,10 @@ BNO055Sensor::BNO055Sensor(rclcpp::NodeOptions const & options)
 {
   imu_raw_publisher_ = this->create_publisher<sensor_msgs::msg::Imu>("imu/raw", 10);
   imu_data_publisher_ = this->create_publisher<sensor_msgs::msg::Imu>("imu/data", 10);
+  gravity_publisher_ = this->create_publisher<geometry_msgs::msg::Vector3Stamped>("gravity", 10);
   mag_publisher_ = this->create_publisher<sensor_msgs::msg::MagneticField>("mag", 10);
   temp_publisher_ = this->create_publisher<sensor_msgs::msg::Temperature>("temp", 10);
-  timer_ = this->create_wall_timer(
-  10ms, std::bind(&BNO055Sensor::timer_callback, this));
+  timer_ = this->create_wall_timer(10ms, std::bind(&BNO055Sensor::timer_callback, this));
 
   std::string i2c_addr("/dev/i2c-1");
   std::string dev_addr("0x28");
@@ -148,6 +148,13 @@ void BNO055Sensor::timer_callback()
   imu_data_msg.linear_acceleration.y = d_linear_accel_xyz.y;
   imu_data_msg.linear_acceleration.z = d_linear_accel_xyz.z;
 
+  auto gravity_msg = geometry_msgs::msg::Vector3Stamped();
+  gravity_msg.header.stamp = time_stamp;
+  gravity_msg.header.frame_id = std::string("imu_base_link");
+  gravity_msg.vector.x = d_gravity_xyz.x;
+  gravity_msg.vector.y = d_gravity_xyz.y;
+  gravity_msg.vector.z = d_gravity_xyz.z;
+
   auto mag_msg = sensor_msgs::msg::MagneticField();
   mag_msg.header.stamp = time_stamp;
   mag_msg.header.frame_id = std::string("imu_base_link");
@@ -162,6 +169,7 @@ void BNO055Sensor::timer_callback()
 
   imu_raw_publisher_->publish(imu_raw_msg);
   imu_data_publisher_->publish(imu_data_msg);
+  gravity_publisher_->publish(gravity_msg);
   mag_publisher_->publish(mag_msg);
   temp_publisher_->publish(temp_msg);
 
