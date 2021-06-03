@@ -25,8 +25,8 @@
 #include <rclcpp/rclcpp.hpp>
 #include "std_msgs/msg/string.hpp"
 #include "sensor_msgs/msg/imu.hpp"
-//#include "sensor_msgs/msg/magnetic_field.hpp"
-//#include "sensor_msgs/msg/temperature.hpp"
+#include "sensor_msgs/msg/magnetic_field.hpp"
+#include "sensor_msgs/msg/temperature.hpp"
 
 namespace bno055_sensor
 {
@@ -44,6 +44,8 @@ private:
   bno055_t sensor_;
   rclcpp::TimerBase::SharedPtr timer_;
   rclcpp::Publisher<sensor_msgs::msg::Imu>::SharedPtr imu_publisher_;
+  rclcpp::Publisher<sensor_msgs::msg::MagneticField>::SharedPtr mag_publisher_;
+  rclcpp::Publisher<sensor_msgs::msg::Temperature>::SharedPtr temp_publisher_;
   size_t count_;  
 };
 
