@@ -1,0 +1,25 @@
+diff --git a/bno055.h b/bno055.h
+index fcdcce5..5217b91 100644
+--- a/bno055.h
++++ b/bno055.h
+@@ -2205,6 +2205,11 @@ struct bno055_sic_matrix_t
+ /*************************************************/
+ /**\name FUNCTION DECLARATION    */
+ /*************************************************/
++
++#ifdef __cplusplus
++extern "C"{
++#endif
++
+ /**************************************************/
+ /**\name INITIALIZATION AND REVISION ID FUNCTIONS */
+ /**************************************************/
+@@ -8135,4 +8140,8 @@ BNO055_RETURN_FUNCTION_TYPE bno055_get_gyro_any_motion_awake_durn(u8 *gyro_awake
+  */
+ BNO055_RETURN_FUNCTION_TYPE bno055_set_gyro_any_motion_awake_durn(u8 gyro_awake_durn_u8);
+ 
++#ifdef __cplusplus
++}
++#endif
++
+ #endif
