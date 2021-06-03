@@ -33,15 +33,20 @@ BNO055Sensor::BNO055Sensor(rclcpp::NodeOptions const & options)
   temp_publisher_ = this->create_publisher<sensor_msgs::msg::Temperature>("temp", 10);
   timer_ = this->create_wall_timer(10ms, std::bind(&BNO055Sensor::timer_callback, this));
 
-  std::string i2c_addr("/dev/i2c-1");
-  std::string dev_addr("0x28");
+  this->declare_parameter<std::string>("i2c_address", "/dev/i2c-1");
+  std::string i2c_addr;
+  this->get_parameter("i2c_address", i2c_addr);
+
+  this->declare_parameter<std::string>("device_address", "0x28");
+  std::string dev_addr;
+  this->get_parameter("device_address", dev_addr);
   int retval = init_i2cbus(i2c_addr.c_str(), dev_addr.c_str());
+
   sensor_.bus_read = BNO055_I2C_bus_read;
   sensor_.bus_write = BNO055_I2C_bus_write;
   sensor_.delay_msec = BNO055_delay_msek;
   sensor_.dev_addr = BNO055_I2C_ADDR1;
 
-  //TODO(brian): check the result and print an error
   s32 comres = BNO055_SUCCESS;
   comres += bno055_init(&sensor_);
 
