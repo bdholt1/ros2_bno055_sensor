@@ -26,6 +26,8 @@
 // global variable for the i2c file descriptor
 int i2c_fd = -1;
 
+#define BNO055_ID 0xA0
+
 int init_i2cbus(const char *i2c_bus, const char *dev_addr)
 {
 
@@ -42,7 +44,7 @@ int init_i2cbus(const char *i2c_bus, const char *dev_addr)
       printf("Error can't find sensor at address [0x%02X].\n", addr);
       return -1;
    }
-   
+
    return 0;
 }
 
@@ -54,42 +56,35 @@ void close_i2cbus()
   }
 }
 
-/*
-int bno055_get_i2c_register(int file, unsigned char addr, unsigned char reg, unsigned char *val) {
-    unsigned char inbuf, outbuf;
-    struct i2c_rdwr_ioctl_data packets;
-    struct i2c_msg messages[2];
-
-    outbuf = reg;
-    messages[0].addr  = addr;
-    messages[0].flags = 0;
-    messages[0].len   = sizeof(outbuf);
-    messages[0].buf   = &outbuf;
-
-    messages[1].addr  = addr;
-    messages[1].flags = I2C_M_RD;
-    messages[1].len   = sizeof(inbuf);
-    messages[1].buf   = &inbuf;
-
-    packets.msgs      = messages;
-    packets.nmsgs     = 2;
-    if(ioctl(file, I2C_RDWR, &packets) < 0) {
-        return 0;
-    }
-    *val = inbuf;
-
-    return 1;
-}
-*/
-  
 s8 BNO055_I2C_bus_read(u8 dev_addr, u8 reg_addr, u8 *reg_data, u8 cnt)
 {
-
-  int result = i2c_smbus_read_i2c_block_data(i2c_fd, reg_addr, cnt, reg_data);
-  if (result != cnt)
+  int result = 0;
+  if (cnt <= 0)
   {
-    printf("Failed to read block from I2C at [0x%02X]\n", reg_addr);
+    printf("BNO055_I2C_bus_read cnt = [%d] is <= 0", cnt);
     return 1;
+  }
+  else if (cnt == 1)
+  {
+    result = i2c_smbus_read_byte_data(i2c_fd, reg_addr);
+    if (result < 0)
+    {
+      printf("BNO055_I2C_bus_read failed to read byte from I2C at [0x%02X]\n", reg_addr);
+      return 1;
+    }
+    else
+    {
+      reg_data[0] = result;
+    }
+  }
+  else
+  {
+    result = i2c_smbus_read_i2c_block_data(i2c_fd, reg_addr, cnt, reg_data);
+    if (result != cnt)
+    {
+      printf("BNO055_I2C_bus_read failed to read %d bytes from I2C at [0x%02X]\n", cnt, reg_addr);
+      return 1;
+    }
   }
 
   return 0;
@@ -97,17 +92,34 @@ s8 BNO055_I2C_bus_read(u8 dev_addr, u8 reg_addr, u8 *reg_data, u8 cnt)
   
 s8 BNO055_I2C_bus_write(u8 dev_addr, u8 reg_addr, u8 *reg_data, u8 cnt)
 {
-  int result = i2c_smbus_write_i2c_block_data(i2c_fd, reg_addr, cnt, reg_data);
-  if (result != cnt)
+  int result = 0;
+  if (cnt <= 0)
   {
-    printf("Failed to write block to I2C at [0x%02X]\n", reg_addr);
+    printf("BNO055_I2C_bus_write cnt = [%d] is <= 0", cnt);
     return 1;
   }
-
+  else if (cnt == 1)
+  {
+    result = i2c_smbus_write_byte_data(i2c_fd, reg_addr, reg_data[0]);
+    if (result < 0)
+    {
+      printf("BNO055_I2C_bus_read failed to write byte from I2C at [0x%02X]\n", reg_addr);
+      return 1;
+    }
+  }
+  else
+  {
+    result = i2c_smbus_write_i2c_block_data(i2c_fd, reg_addr, cnt, reg_data);
+    if (result != cnt)
+    {
+      printf("BNO055_I2C_bus_read failed to write %d to I2C at [0x%02X]\n", cnt, reg_addr);
+      return 1;
+    }
+  }
   return 0;
 }
 
 void BNO055_delay_msek(u32 msek)
 {
-  usleep(msek);
+  usleep(msek*1000);
 }
