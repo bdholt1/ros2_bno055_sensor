@@ -26,8 +26,8 @@ namespace bno055_sensor
 BNO055Sensor::BNO055Sensor(rclcpp::NodeOptions const & options)
 :  Node("bno055_sensor_node"), count_(0)
 {
-
-  imu_publisher_ = this->create_publisher<sensor_msgs::msg::Imu>("imu/data", 10);
+  imu_raw_publisher_ = this->create_publisher<sensor_msgs::msg::Imu>("imu/raw", 10);
+  imu_data_publisher_ = this->create_publisher<sensor_msgs::msg::Imu>("imu/data", 10);
   mag_publisher_ = this->create_publisher<sensor_msgs::msg::MagneticField>("mag", 10);
   temp_publisher_ = this->create_publisher<sensor_msgs::msg::Temperature>("temp", 10);
   timer_ = this->create_wall_timer(
@@ -75,6 +75,9 @@ void BNO055Sensor::timer_callback()
   u8 gyro_calib_status;
   u8 sys_calib_status;
 
+  bno055_gyro_t gyro_xyz;
+  bno055_linear_accel_t linear_accel_xyz;
+
   bno055_quaternion_t quaternion_wxyz;
   bno055_gyro_double_t d_gyro_xyz;
   bno055_euler_double_t d_euler_hpr;
@@ -89,12 +92,9 @@ void BNO055Sensor::timer_callback()
   comres += bno055_get_gyro_calib_stat(&gyro_calib_status);
   comres += bno055_get_sys_calib_stat(&sys_calib_status);
 
-  /*
+  // read the raw data
   comres += bno055_read_gyro_xyz(&gyro_xyz);
-  comres += bno055_read_euler_hrp(&euler_hrp);
   comres += bno055_read_linear_accel_xyz(&linear_accel_xyz);
-  comres += bno055_read_gravity_xyz(&gravity_xyz);
-  */
 
   // read the fusion data
   comres += bno055_read_quaternion_wxyz(&quaternion_wxyz);
@@ -120,19 +120,33 @@ void BNO055Sensor::timer_callback()
 
   auto time_stamp = now();
 
-  auto imu_msg = sensor_msgs::msg::Imu();
-  imu_msg.header.stamp = time_stamp;
-  imu_msg.header.frame_id = std::string("imu_base_link");
-  imu_msg.orientation.x = quaternion_wxyz.x / quaternion_norm;
-  imu_msg.orientation.y = quaternion_wxyz.y / quaternion_norm;
-  imu_msg.orientation.z = quaternion_wxyz.z / quaternion_norm;
-  imu_msg.orientation.w = quaternion_wxyz.w / quaternion_norm;
-  imu_msg.angular_velocity.x = d_gyro_xyz.x;
-  imu_msg.angular_velocity.y = d_gyro_xyz.y;
-  imu_msg.angular_velocity.z = d_gyro_xyz.z;
-  imu_msg.linear_acceleration.x = d_linear_accel_xyz.x;
-  imu_msg.linear_acceleration.y = d_linear_accel_xyz.y;
-  imu_msg.linear_acceleration.z = d_linear_accel_xyz.z;
+  auto imu_raw_msg = sensor_msgs::msg::Imu();
+  imu_raw_msg.header.stamp = time_stamp;
+  imu_raw_msg.header.frame_id = std::string("imu_base_link");
+  imu_raw_msg.orientation.x = 0;
+  imu_raw_msg.orientation.y = 0;
+  imu_raw_msg.orientation.z = 0;
+  imu_raw_msg.orientation.w = 0;
+  imu_raw_msg.angular_velocity.x = gyro_xyz.x;
+  imu_raw_msg.angular_velocity.y = gyro_xyz.y;
+  imu_raw_msg.angular_velocity.z = gyro_xyz.z;
+  imu_raw_msg.linear_acceleration.x = linear_accel_xyz.x;
+  imu_raw_msg.linear_acceleration.y = linear_accel_xyz.y;
+  imu_raw_msg.linear_acceleration.z = linear_accel_xyz.z;
+
+  auto imu_data_msg = sensor_msgs::msg::Imu();
+  imu_data_msg.header.stamp = time_stamp;
+  imu_data_msg.header.frame_id = std::string("imu_base_link");
+  imu_data_msg.orientation.x = quaternion_wxyz.x / quaternion_norm;
+  imu_data_msg.orientation.y = quaternion_wxyz.y / quaternion_norm;
+  imu_data_msg.orientation.z = quaternion_wxyz.z / quaternion_norm;
+  imu_data_msg.orientation.w = quaternion_wxyz.w / quaternion_norm;
+  imu_data_msg.angular_velocity.x = d_gyro_xyz.x;
+  imu_data_msg.angular_velocity.y = d_gyro_xyz.y;
+  imu_data_msg.angular_velocity.z = d_gyro_xyz.z;
+  imu_data_msg.linear_acceleration.x = d_linear_accel_xyz.x;
+  imu_data_msg.linear_acceleration.y = d_linear_accel_xyz.y;
+  imu_data_msg.linear_acceleration.z = d_linear_accel_xyz.z;
 
   auto mag_msg = sensor_msgs::msg::MagneticField();
   mag_msg.header.stamp = time_stamp;
@@ -145,8 +159,9 @@ void BNO055Sensor::timer_callback()
   temp_msg.header.stamp = time_stamp;
   temp_msg.header.frame_id = std::string("imu_base_link");
   temp_msg.temperature = d_temp;
-  
-  imu_publisher_->publish(imu_msg);
+
+  imu_raw_publisher_->publish(imu_raw_msg);
+  imu_data_publisher_->publish(imu_data_msg);
   mag_publisher_->publish(mag_msg);
   temp_publisher_->publish(temp_msg);
 
