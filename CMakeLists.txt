@@ -22,10 +22,11 @@ add_library(bno055_sensor
   src/bno055_i2c.c)
 rclcpp_components_register_nodes(bno055_sensor "bno055_sensor::BNO055Sensor")
 
-target_include_directories(bno055_sensor PUBLIC
-  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
-  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/BNO055_driver>
-  $<INSTALL_INTERFACE:include>)
+target_include_directories(bno055_sensor
+  PUBLIC
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/BNO055_driver>
+    $<INSTALL_INTERFACE:include>)
 
 ament_target_dependencies(bno055_sensor
   "rclcpp"
@@ -49,9 +50,10 @@ install(
 
 # build the ROS2 node
 add_executable(bno055_sensor_node src/bno055_sensor_node.cpp)
-target_include_directories(bno055_sensor_node PUBLIC
-  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
-  $<INSTALL_INTERFACE:include>)
+target_include_directories(bno055_sensor_node
+  PUBLIC
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+    $<INSTALL_INTERFACE:include>)
 
 target_link_libraries(bno055_sensor_node bno055_sensor bno055_driver i2c)
 target_compile_options(bno055_sensor_node PRIVATE -Werror)
