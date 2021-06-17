@@ -45,7 +45,7 @@ BNO055Sensor::BNO055Sensor(rclcpp::NodeOptions const & options)
   sensor_.bus_read = BNO055_I2C_bus_read;
   sensor_.bus_write = BNO055_I2C_bus_write;
   sensor_.delay_msec = BNO055_delay_msek;
-  sensor_.dev_addr = dev_addr;
+  sensor_.dev_addr = BNO055_I2C_ADDR1; //TODO convert dev_addr from string to byte
 
   s32 comres = BNO055_SUCCESS;
   comres += bno055_init(&sensor_);
