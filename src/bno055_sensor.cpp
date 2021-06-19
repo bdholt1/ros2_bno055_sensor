@@ -28,6 +28,9 @@ BNO055Sensor::BNO055Sensor(rclcpp::NodeOptions const & options)
 {
   imu_raw_publisher_ = this->create_publisher<sensor_msgs::msg::Imu>("imu/raw", 10);
   imu_data_publisher_ = this->create_publisher<sensor_msgs::msg::Imu>("imu/data", 10);
+  imu_roll_publisher_ = this->create_publisher<std_msgs::msg::Float64>("imu/roll", 10);
+  imu_pitch_publisher_ = this->create_publisher<std_msgs::msg::Float64>("imu/pitch", 10);
+  imu_yaw_publisher_ = this->create_publisher<std_msgs::msg::Float64>("imu/yaw", 10);  
   gravity_publisher_ = this->create_publisher<geometry_msgs::msg::Vector3Stamped>("gravity", 10);
   mag_publisher_ = this->create_publisher<sensor_msgs::msg::MagneticField>("mag", 10);
   temp_publisher_ = this->create_publisher<sensor_msgs::msg::Temperature>("temp", 10);
@@ -153,6 +156,16 @@ void BNO055Sensor::timer_callback()
   imu_data_msg.linear_acceleration.y = d_linear_accel_xyz.y;
   imu_data_msg.linear_acceleration.z = d_linear_accel_xyz.z;
 
+
+  auto imu_roll_msg = std_msgs::msg::Float64();
+  imu_roll_msg.data = d_euler_hpr.r;
+
+  auto imu_pitch_msg = std_msgs::msg::Float64();
+  imu_pitch_msg.data = d_euler_hpr.p;
+
+  auto imu_yaw_msg = std_msgs::msg::Float64();
+  imu_yaw_msg.data = d_euler_hpr.h;  
+  
   auto gravity_msg = geometry_msgs::msg::Vector3Stamped();
   gravity_msg.header.stamp = time_stamp;
   gravity_msg.header.frame_id = std::string("imu_base_link");
@@ -174,6 +187,9 @@ void BNO055Sensor::timer_callback()
 
   imu_raw_publisher_->publish(imu_raw_msg);
   imu_data_publisher_->publish(imu_data_msg);
+  imu_roll_publisher_->publish(imu_roll_msg);
+  imu_pitch_publisher_->publish(imu_pitch_msg);  
+  imu_yaw_publisher_->publish(imu_yaw_msg);
   gravity_publisher_->publish(gravity_msg);
   mag_publisher_->publish(mag_msg);
   temp_publisher_->publish(temp_msg);

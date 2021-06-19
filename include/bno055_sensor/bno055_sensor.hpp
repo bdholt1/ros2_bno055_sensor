@@ -27,6 +27,7 @@
 #include "sensor_msgs/msg/imu.hpp"
 #include "sensor_msgs/msg/magnetic_field.hpp"
 #include "sensor_msgs/msg/temperature.hpp"
+#include "std_msgs/msg/float64.hpp"
 
 namespace bno055_sensor
 {
@@ -45,6 +46,9 @@ private:
   rclcpp::TimerBase::SharedPtr timer_;
   rclcpp::Publisher<sensor_msgs::msg::Imu>::SharedPtr imu_raw_publisher_;
   rclcpp::Publisher<sensor_msgs::msg::Imu>::SharedPtr imu_data_publisher_;
+  rclcpp::Publisher<std_msgs::msg::Float64>::SharedPtr imu_roll_publisher_;
+  rclcpp::Publisher<std_msgs::msg::Float64>::SharedPtr imu_pitch_publisher_;
+  rclcpp::Publisher<std_msgs::msg::Float64>::SharedPtr imu_yaw_publisher_;
   rclcpp::Publisher<geometry_msgs::msg::Vector3Stamped>::SharedPtr gravity_publisher_;
   rclcpp::Publisher<sensor_msgs::msg::MagneticField>::SharedPtr mag_publisher_;
   rclcpp::Publisher<sensor_msgs::msg::Temperature>::SharedPtr temp_publisher_;

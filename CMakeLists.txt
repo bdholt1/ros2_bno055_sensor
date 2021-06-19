@@ -7,6 +7,7 @@ find_package(ament_cmake_ros REQUIRED)
 find_package(rclcpp REQUIRED)
 find_package(rclcpp_components REQUIRED)
 find_package(sensor_msgs REQUIRED)
+find_package(std_msgs REQUIRED)
 
 # package up the BNO055_driver as a library
 add_library(bno055_driver thirdparty/BNO055_driver/bno055.c)
@@ -31,7 +32,8 @@ target_include_directories(bno055_sensor
 ament_target_dependencies(bno055_sensor
   "rclcpp"
   "rclcpp_components"
-  "sensor_msgs")
+  "sensor_msgs"
+  "std_msgs")
 
 target_compile_options(bno055_sensor PRIVATE -Werror)
 target_compile_features(bno055_sensor PRIVATE cxx_std_14)
