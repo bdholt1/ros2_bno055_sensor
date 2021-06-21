@@ -33,7 +33,7 @@ BNO055Sensor::BNO055Sensor(rclcpp::NodeOptions const & options)
   temp_publisher_ = this->create_publisher<sensor_msgs::msg::Temperature>("temp", 10);
   timer_ = this->create_wall_timer(10ms, std::bind(&BNO055Sensor::timer_callback, this));
 
-  this->declare_parameter<std::string>("i2c_address", "/dev/i2c-1");
+  this->declare_parameter<std::string>("i2c_address", "/dev/i2c-3");
   std::string i2c_addr;
   this->get_parameter("i2c_address", i2c_addr);
 
