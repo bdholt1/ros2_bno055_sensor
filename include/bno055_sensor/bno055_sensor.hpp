@@ -23,6 +23,7 @@
 #include <string>
 
 #include <rclcpp/rclcpp.hpp>
+#include "diagnostic_msgs/msg/diagnostic_status.hpp"
 #include "geometry_msgs/msg/vector3_stamped.hpp"
 #include "sensor_msgs/msg/imu.hpp"
 #include "sensor_msgs/msg/magnetic_field.hpp"
@@ -39,15 +40,24 @@ public:
   virtual ~BNO055Sensor();
 
 private:
-  void timer_callback();
+  std::string system_status_as_string(u8 system_status);
+  std::string system_error_as_string(u8 system_error);
+
+  void initialise();
+
+  void publish_data();
+
+  void publish_diagnostics();
 
   bno055_t sensor_;
-  rclcpp::TimerBase::SharedPtr timer_;
+  rclcpp::TimerBase::SharedPtr data_timer_;
+  rclcpp::TimerBase::SharedPtr diagnostics_timer_;
   rclcpp::Publisher<sensor_msgs::msg::Imu>::SharedPtr imu_raw_publisher_;
   rclcpp::Publisher<sensor_msgs::msg::Imu>::SharedPtr imu_data_publisher_;
   rclcpp::Publisher<geometry_msgs::msg::Vector3Stamped>::SharedPtr gravity_publisher_;
   rclcpp::Publisher<sensor_msgs::msg::MagneticField>::SharedPtr mag_publisher_;
   rclcpp::Publisher<sensor_msgs::msg::Temperature>::SharedPtr temp_publisher_;
+  rclcpp::Publisher<diagnostic_msgs::msg::DiagnosticStatus>::SharedPtr diagnostics_publisher_;
   size_t count_;  
 };
 
