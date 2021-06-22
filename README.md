@@ -37,7 +37,6 @@ Fusion data (requires NDOF mode)
 
 Magnetic field
 
-
 * `temp` -  `sensor_msgs/Temperature`
 
 Temperature
@@ -54,7 +53,7 @@ The i2c address of the BNO055 (default is 0x28)
 # Why another BNO055 driver?  
 Bosch Sensortec have released [a package](https://github.com/BoschSensortec/BNO055_driver) for communicating with the BNO055. This abstracts away the exact register addresses and communiction details, requiring only that the user supply 3 functions (I2C read, I2c write, and delay). No other ROS drivers make use of this package.
 
-There is [already](https://github.com/flynneva/bno055) a ROS2 Driver for the BN055 but I2C is not supported, only UART.
+There is [already](https://github.com/flynneva/bno055) a ROS2 Driver for the BN055 but I2C is not supported, only UART. [This driver](https://github.com/RoverRobotics-archive/ros2_bno055_driver) is C++, ROS2 but doesn't use the Bosch Sensortec package.
 
 Reference ROS1 BNO055 drivers:
 * https://github.com/mdrwiega/bosch_imu_driver (UART only)
