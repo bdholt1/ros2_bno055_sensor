@@ -38,7 +38,6 @@ int init_i2cbus(const char *i2c_bus, const char *dev_addr)
    }
    
    int addr = (int)strtol(dev_addr, NULL, 16);
-   printf("Debug: Sensor address: [0x%02X]\n", addr);
 
    if(ioctl(i2c_fd, I2C_SLAVE, addr) != 0) {
       printf("Error can't find sensor at address [0x%02X].\n", addr);
