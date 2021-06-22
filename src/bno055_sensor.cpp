@@ -37,6 +37,7 @@ BNO055Sensor::BNO055Sensor(rclcpp::NodeOptions const & options)
 
   this->declare_parameter<std::string>("i2c_address", "/dev/i2c-3");
   this->declare_parameter<std::string>("device_address", "0x28");
+  this->declare_parameter<std::string>("frame_id", "imu_link");
 
   sensor_.bus_read = BNO055_I2C_bus_read;
   sensor_.bus_write = BNO055_I2C_bus_write;
@@ -129,9 +130,12 @@ void BNO055Sensor::publish_data()
 
   auto time_stamp = now();
 
+  std::string frame_id;
+  this->get_parameter("frame_id", frame_id);
+
   auto imu_raw_msg = sensor_msgs::msg::Imu();
   imu_raw_msg.header.stamp = time_stamp;
-  imu_raw_msg.header.frame_id = std::string("imu_base_link");
+  imu_raw_msg.header.frame_id = frame_id;
   imu_raw_msg.orientation.x = 0;
   imu_raw_msg.orientation.y = 0;
   imu_raw_msg.orientation.z = 0;
@@ -145,7 +149,7 @@ void BNO055Sensor::publish_data()
 
   auto temp_msg = sensor_msgs::msg::Temperature();
   temp_msg.header.stamp = time_stamp;
-  temp_msg.header.frame_id = std::string("imu_base_link");
+  temp_msg.header.frame_id = frame_id;
   temp_msg.temperature = d_temp;
 
   imu_raw_publisher_->publish(imu_raw_msg);
@@ -159,7 +163,7 @@ void BNO055Sensor::publish_data()
 
   auto imu_data_msg = sensor_msgs::msg::Imu();
   imu_data_msg.header.stamp = time_stamp;
-  imu_data_msg.header.frame_id = std::string("imu_base_link");
+  imu_data_msg.header.frame_id = frame_id;
   imu_data_msg.orientation.x = quaternion_wxyz.x / quaternion_norm;
   imu_data_msg.orientation.y = quaternion_wxyz.y / quaternion_norm;
   imu_data_msg.orientation.z = quaternion_wxyz.z / quaternion_norm;
@@ -173,14 +177,14 @@ void BNO055Sensor::publish_data()
 
   auto gravity_msg = geometry_msgs::msg::Vector3Stamped();
   gravity_msg.header.stamp = time_stamp;
-  gravity_msg.header.frame_id = std::string("imu_base_link");
+  gravity_msg.header.frame_id = frame_id;
   gravity_msg.vector.x = d_gravity_xyz.x;
   gravity_msg.vector.y = d_gravity_xyz.y;
   gravity_msg.vector.z = d_gravity_xyz.z;
 
   auto mag_msg = sensor_msgs::msg::MagneticField();
   mag_msg.header.stamp = time_stamp;
-  mag_msg.header.frame_id = std::string("imu_base_link");
+  mag_msg.header.frame_id = frame_id;
   mag_msg.magnetic_field.x = d_mag_xyz.x;
   mag_msg.magnetic_field.y = d_mag_xyz.y;
   mag_msg.magnetic_field.z = d_mag_xyz.z;
@@ -226,7 +230,6 @@ std::string BNO055Sensor::system_error_as_string(u8 system_error)
   }
   return retval;
 }
-
 
 void BNO055Sensor::publish_diagnostics()
 {
