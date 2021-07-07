@@ -86,6 +86,9 @@ void BNO055Sensor::publish_data()
 
   u8 system_status;
   u8 sys_calib_status;
+  u8 gyro_calib_status;
+  u8 accel_calib_status;
+  u8 mag_calib_status;
   
   bno055_gyro_t gyro_xyz;
   bno055_linear_accel_t linear_accel_xyz;
@@ -100,6 +103,9 @@ void BNO055Sensor::publish_data()
 
   comres += bno055_get_sys_stat_code(&system_status);
   comres += bno055_get_sys_calib_stat(&sys_calib_status);
+  comres += bno055_get_gyro_calib_stat(&gyro_calib_status);
+  comres += bno055_get_accel_calib_stat(&accel_calib_status);
+  comres += bno055_get_mag_calib_stat(&mag_calib_status);
 
   // read the raw data
   comres += bno055_read_gyro_xyz(&gyro_xyz);
@@ -155,7 +161,7 @@ void BNO055Sensor::publish_data()
   imu_raw_publisher_->publish(imu_raw_msg);
   temp_publisher_->publish(temp_msg);
 
-  if (sys_calib_status == 0)
+  if (gyro_calib_status < 2 || accel_calib_status < 2 || mag_calib_status < 2)
   {
     RCLCPP_WARN(this->get_logger(), "Fusion data is not reliable as system is not calibrated");
     return;
